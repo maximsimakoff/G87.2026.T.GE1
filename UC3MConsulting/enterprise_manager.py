@@ -1,18 +1,31 @@
+""" Enterprise Manager Class """
+
 import json
 from .EnterpriseManagementException import EnterpriseManagementException
 from .EnterpriseRequest import EnterpriseRequest
 
+digit_to_letter = {
+    0: "J", 1: "A", 2: "B", 3: "C", 4: "D",
+    5: "E", 6: "F", 7: "G", 8: "H", 9: "I"
+}
+
+
 class EnterpriseManager:
+    """ Enterprise Manager Class """
     def __init__(self):
         pass
 
-    def ValidateCIF( self, CiF ):
+    def validate_cif(self, ci_f):
+        """ Validate the CIF """
         # PLEASE INCLUDE HERE THE CODE FOR VALIDATING THE GUID
         # RETURN TRUE IF THE GUID IS RIGHT, OR FALSE IN OTHER CASE
-        if CiF is None:
+
+        valid = False
+
+        if ci_f is None:
             return False
 
-        cif = CiF.strip().upper()
+        cif = ci_f.strip().upper()
 
         if len(cif) != 9:
             return False
@@ -40,25 +53,23 @@ class EnterpriseManager:
             odd_sum += value
 
         total = even_sum + odd_sum
-
         unit = total % 10
         base_digit = 0 if unit == 0 else 10 - unit
 
-        digit_to_letter = {0: "J", 1: "A", 2: "B", 3: "C", 4: "D", 5: "E", 6: "F", 7: "G", 8: "H", 9: "I"}
-
         if letter in {"A", "B", "E", "H"}:
-            return control.isdigit() and int(control) == base_digit
+            valid = control.isdigit() and int(control) == base_digit
+        elif letter in {"K", "P", "Q", "S"}:
+            valid = control.isalpha() and control == digit_to_letter[base_digit]
 
-        if letter in {"K", "P", "Q", "S"}:
-            return control.isalpha() and control == digit_to_letter[base_digit]
+        return valid
 
-        return False
 
-    def ReadproductcodefromJSON( self, fi ):
+    def read_product_code_from_json( self, fi ):
+        """ Read from the JSON file """
 
         try:
-            with open(fi) as f:
-                DATA = json.load(f)
+            with open(fi, encoding="utf-8") as f:
+                data = json.load(f)
         except FileNotFoundError as e:
             raise EnterpriseManagementException("Wrong file or file path") from e
         except json.JSONDecodeError as e:
@@ -66,12 +77,12 @@ class EnterpriseManager:
 
 
         try:
-            T_CIF = DATA["cif"]
-            T_PHONE = DATA["phone"]
-            E_NAME = DATA["enterprise_name"]
-            req = EnterpriseRequest(T_CIF, T_PHONE,E_NAME)
+            t_cif = data["cif"]
+            t_phone = data["phone"]
+            e_name = data["enterprise_name"]
+            req = EnterpriseRequest(t_cif, t_phone,e_name)
         except KeyError as e:
             raise EnterpriseManagementException("JSON Decode Error - Invalid JSON Key") from e
-        if not self.ValidateCIF(T_CIF) :
+        if not self.validate_cif(t_cif) :
             raise EnterpriseManagementException("Invalid FROM IBAN")
         return req

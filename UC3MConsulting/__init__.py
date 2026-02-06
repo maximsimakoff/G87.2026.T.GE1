@@ -1,3 +1,3 @@
 from UC3MConsulting.EnterpriseRequest import EnterpriseRequest
-from UC3MConsulting.EnterpriseManager import EnterpriseManager
+from UC3MConsulting.enterprise_manager import EnterpriseManager
 from UC3MConsulting.EnterpriseManagementException import EnterpriseManagementException
